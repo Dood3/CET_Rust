@@ -78,51 +78,22 @@ fn get_output_name() -> String {
 fn generate_rust_code(target_os: &str, command: &str) -> String {
     // Escape the command for safe embedding
     let escaped_command = command.replace("\\", "\\\\").replace("\"", "\\\"");
-
+    
     let command_execution = match target_os {
         "windows" => format!(
-            "    let output = Command::new(\"cmd\")\n\
-             \        .args([\"/C\", \"{}\"])\n\
-             \        .output()\n\
-             \        .expect(\"Failed to execute command\");",
+            "    let output = Command::new(\"cmd\")\n        .args([\"/C\", \"{}\"])\n        .output()\n        .expect(\"Failed to execute command\");",
             escaped_command
         ),
         "linux" => format!(
-            "    let output = Command::new(\"sh\")\n\
-             \        .args([\"-c\", \"{}\"])\n\
-             \        .output()\n\
-             \        .expect(\"Failed to execute command\");",
+            "    let output = Command::new(\"sh\")\n        .args([\"-c\", \"{}\"])\n        .output()\n        .expect(\"Failed to execute command\");",
             escaped_command
         ),
         _ => panic!("Unsupported OS"),
     };
 
     format!(
-        "use std::process::Command;\n\
-         use std::io::{{self, Write}};\n\n\
-         fn main() {{\n\
-         \    // Embedded command: {embedded}\n\
-         \    println!(\"Executing embedded command...\");\n\
-         \n\
-         {exec}\n\
-         \n\
-         \    // Print stdout\n\
-         \    if !output.stdout.is_empty() {{\n\
-         \        println!(\"Output:\");\n\
-         \        io::stdout().write_all(&output.stdout).unwrap();\n\
-         \    }}\n\
-         \n\
-         \    // Print stderr if there are errors\n\
-         \    if !output.stderr.is_empty() {{\n\
-         \        eprintln!(\"Error:\");\n\
-         \        io::stderr().write_all(&output.stderr).unwrap();\n\
-         \    }}\n\
-         \n\
-         \    // Exit with the same code as the embedded command\n\
-         \    std::process::exit(output.status.code().unwrap_or(1));\n\
-         }}",
-        embedded = escaped_command,
-        exec = command_execution
+        "use std::process::Command;\nuse std::io::{{self, Write}};\n\nfn main() {{\n    // Embedded command: {}\n    println!(\"Executing embedded command...\");\n    \n{}\n    \n    // Print stdout\n    if !output.stdout.is_empty() {{\n        println!(\"Output:\");\n        io::stdout().write_all(&output.stdout).unwrap();\n    }}\n    \n    // Print stderr if there are errors\n    if !output.stderr.is_empty() {{\n        eprintln!(\"Error:\");\n        io::stderr().write_all(&output.stderr).unwrap();\n    }}\n    \n    // Exit with the same code as the embedded command\n    std::process::exit(output.status.code().unwrap_or(1));\n}}",
+        escaped_command, command_execution
     )
 }
 
