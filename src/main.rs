@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use std::process::Command;
 
 fn main() {
-    println!("=== Command Embedder Tool (Rust Version) ===");
+    println!("=== Command Embedder Tool (Rust) ===");
     println!("This tool creates standalone executables with embedded shell commands.\n");
     
     // Step 1: Collect user input
